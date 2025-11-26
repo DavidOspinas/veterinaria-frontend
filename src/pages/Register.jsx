@@ -1,5 +1,8 @@
 import { useState } from "react";
 
+// 🔥 URL del backend desde .env o .env.production
+const API_URL = import.meta.env.VITE_API_URL;
+
 export default function Register() {
   const [nombre, setNombre] = useState("");
   const [email, setEmail] = useState("");
@@ -18,7 +21,7 @@ export default function Register() {
     }
 
     try {
-      const res = await fetch("http://localhost:4000/api/auth/register", {
+      const res = await fetch(`${API_URL}/api/auth/register`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ nombre, email, password }),
