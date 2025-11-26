@@ -30,12 +30,16 @@ export default function Login() {
   // 🔥 LOGIN GOOGLE
   // ======================================================
   async function handleCredentialResponse(response) {
-    try {
-      const backendResponse = await fetch(`${API_URL}/api/auth/google`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ credential: response.credential }),
-      });
+  const backendResponse = await fetch(`${API_URL}/api/auth/google`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      credential: response.credential || response.id_token,
+      id_token: response.credential || response.id_token
+    }),
+  });
+}
+
 
       const data = await backendResponse.json();
 
