@@ -1,5 +1,8 @@
 import { useEffect, useState } from "react";
 
+// 🔥 URL del backend tomada desde .env o .env.production
+const API_URL = import.meta.env.VITE_API_URL;
+
 export default function Login() {
   const [emailAdmin, setEmailAdmin] = useState("");
   const [passAdmin, setPassAdmin] = useState("");
@@ -28,14 +31,11 @@ export default function Login() {
   // ======================================================
   async function handleCredentialResponse(response) {
     try {
-      const backendResponse = await fetch(
-        "http://localhost:4000/api/auth/google",
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ credential: response.credential }),
-        }
-      );
+      const backendResponse = await fetch(`${API_URL}/api/auth/google`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ credential: response.credential }),
+      });
 
       const data = await backendResponse.json();
 
@@ -62,7 +62,7 @@ export default function Login() {
     e.preventDefault();
 
     try {
-      const res = await fetch("http://localhost:4000/api/auth/login-admin", {
+      const res = await fetch(`${API_URL}/api/auth/login-admin`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -78,7 +78,6 @@ export default function Login() {
         return;
       }
 
-      // ⚠️ Asegurar proveedor local (admin)
       data.user.proveedor = "local";
 
       localStorage.setItem("token", data.token);
