@@ -8,7 +8,7 @@ export default function Login() {
   const [passAdmin, setPassAdmin] = useState("");
 
   useEffect(() => {
-    window.google.accounts.id.disableAutoSelect();
+    console.log("Google One Tap inicializado");
 
     window.google.accounts.id.initialize({
       client_id:
@@ -27,11 +27,13 @@ export default function Login() {
   }, []);
 
   // ======================================================
-  // 🔥 LOGIN GOOGLE (CORREGIDO)
+  // 🔥 LOGIN GOOGLE (VERSIÓN FINAL)
   // ======================================================
   async function handleCredentialResponse(response) {
     try {
-      const tokenGoogle = response.credential || response.id_token;
+      const tokenGoogle = response.credential;
+
+      console.log("TOKEN GOOGLE RECIBIDO:", tokenGoogle);
 
       const backendResponse = await fetch(`${API_URL}/api/auth/google`, {
         method: "POST",
@@ -43,19 +45,21 @@ export default function Login() {
       });
 
       const data = await backendResponse.json();
+      console.log("RESPUESTA BACKEND:", data);
 
-      if (data.ok) {
-        localStorage.setItem("token", data.token);
-        localStorage.setItem("usuario", JSON.stringify(data.user));
-        localStorage.setItem("rol", data.rol);
+      if (!data.ok) {
+        alert("Fallo el inicio de sesión con Google");
+        return;
+      }
 
-        if (data.rol === "ADMIN") {
-          window.location.href = "/admin";
-        } else {
-          window.location.href = "/cliente";
-        }
+      localStorage.setItem("token", data.token);
+      localStorage.setItem("usuario", JSON.stringify(data.user));
+      localStorage.setItem("rol", data.rol);
+
+      if (data.rol === "ADMIN") {
+        window.location.href = "/admin";
       } else {
-        console.error("Error en Google Login:", data.msg);
+        window.location.href = "/cliente";
       }
     } catch (error) {
       console.error("Error enviando token al backend:", error);
@@ -85,8 +89,6 @@ export default function Login() {
         return;
       }
 
-      data.user.proveedor = "local";
-
       localStorage.setItem("token", data.token);
       localStorage.setItem("usuario", JSON.stringify(data.user));
       localStorage.setItem("rol", data.rol);
@@ -115,7 +117,6 @@ export default function Login() {
             onChange={(e) => setEmailAdmin(e.target.value)}
             style={styles.input}
           />
-
           <input
             type="password"
             placeholder="Contraseña"
@@ -123,7 +124,6 @@ export default function Login() {
             onChange={(e) => setPassAdmin(e.target.value)}
             style={styles.input}
           />
-
           <button type="submit" style={styles.button}>
             Entrar como Admin
           </button>
@@ -143,6 +143,7 @@ export default function Login() {
   );
 }
 
+// === ESTILOS ===
 const styles = {
   container: {
     height: "100vh",
@@ -188,3 +189,4 @@ const styles = {
     fontSize: "14px",
   },
 };
+
