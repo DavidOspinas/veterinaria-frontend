@@ -1,5 +1,7 @@
 import { useEffect, useState } from "react";
-console.log("TOKEN EN VETERINARIOS:", localStorage.getItem("token"));
+
+// 🔥 URL del backend desde .env o .env.production
+const API_URL = import.meta.env.VITE_API_URL;
 
 export default function Veterinarios() {
   const [veterinarios, setVeterinarios] = useState([]);
@@ -17,7 +19,7 @@ export default function Veterinarios() {
   // ===============================
   async function cargarVeterinarios() {
     try {
-      const res = await fetch("http://localhost:4000/api/veterinarios", {
+      const res = await fetch(`${API_URL}/api/veterinarios`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -36,7 +38,7 @@ export default function Veterinarios() {
   // ===============================
   async function cargarUsuarios() {
     try {
-      const res = await fetch("http://localhost:4000/api/usuarios", {
+      const res = await fetch(`${API_URL}/api/usuarios`, {
         headers: { Authorization: `Bearer ${token}` },
       });
 
@@ -71,7 +73,7 @@ export default function Veterinarios() {
     };
 
     try {
-      const res = await fetch("http://localhost:4000/api/veterinarios", {
+      const res = await fetch(`${API_URL}/api/veterinarios`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -98,49 +100,54 @@ export default function Veterinarios() {
   // Eliminar veterinario
   // ===============================
   async function eliminarVeterinario(id) {
-  // 1️⃣ Consultar cuántas citas tiene
-  const resCount = await fetch(`http://localhost:4000/api/veterinarios/${id}/citas-count`, {
-    headers: { Authorization: `Bearer ${localStorage.getItem("token")}` }
-  });
-
-  const dataCount = await resCount.json();
-
-  if (!dataCount.ok) {
-    return alert("Error obteniendo citas del veterinario.");
-  }
-
-  const total = dataCount.total;
-
-  // 2️⃣ Si tiene citas → NO permitir eliminar
-  if (total > 0) {
-    return alert(
-      `No se puede eliminar este veterinario.\nTiene ${total} cita(s) registradas.`
+    // 1️⃣ Consultar cuántas citas tiene
+    const resCount = await fetch(
+      `${API_URL}/api/veterinarios/${id}/citas-count`,
+      {
+        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+      }
     );
+
+    const dataCount = await resCount.json();
+
+    if (!dataCount.ok) {
+      return alert("Error obteniendo citas del veterinario.");
+    }
+
+    const total = dataCount.total;
+
+    // 2️⃣ Si tiene citas → NO permitir eliminar
+    if (total > 0) {
+      return alert(
+        `No se puede eliminar este veterinario.\nTiene ${total} cita(s) registradas.`
+      );
+    }
+
+    // 3️⃣ Confirmación
+    if (!confirm("¿Seguro que deseas eliminar este veterinario?")) return;
+
+    // 4️⃣ Eliminar veterinario
+    const res = await fetch(`${API_URL}/api/veterinarios/${id}`, {
+      method: "DELETE",
+      headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+    });
+
+    const data = await res.json();
+
+    if (!data.ok) {
+      alert(data.msg);
+      return;
+    }
+
+    alert("Veterinario eliminado correctamente");
+    cargarVeterinarios();
   }
-
-  // 3️⃣ Si NO tiene citas → Preguntar confirmación
-  if (!confirm("¿Seguro que deseas eliminar este veterinario?")) return;
-
-  // 4️⃣ Eliminar veterinario
-  const res = await fetch(`http://localhost:4000/api/veterinarios/${id}`, {
-    method: "DELETE",
-    headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
-  });
-
-  const data = await res.json();
-
-  if (!data.ok) {
-    alert(data.msg);
-    return;
-  }
-
-  alert("Veterinario eliminado correctamente");
-  cargarVeterinarios();
-}
 
   return (
     <div>
-      <h1 style={{ fontSize: "28px", marginBottom: "20px" }}>🩺 Gestión de Veterinarios</h1>
+      <h1 style={{ fontSize: "28px", marginBottom: "20px" }}>
+        🩺 Gestión de Veterinarios
+      </h1>
 
       {/* FORMULARIO */}
       <form
