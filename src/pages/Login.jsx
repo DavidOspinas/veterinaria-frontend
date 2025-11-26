@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 
-// 🔥 URL del backend tomada desde .env o .env.production
+// 🔥 URL del backend
 const API_URL = import.meta.env.VITE_API_URL;
 
 export default function Login() {
@@ -27,19 +27,20 @@ export default function Login() {
   }, []);
 
   // ======================================================
-  // 🔥 LOGIN GOOGLE
+  // 🔥 LOGIN GOOGLE (CORREGIDO)
   // ======================================================
   async function handleCredentialResponse(response) {
-  const backendResponse = await fetch(`${API_URL}/api/auth/google`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      credential: response.credential || response.id_token,
-      id_token: response.credential || response.id_token
-    }),
-  });
-}
+    try {
+      const tokenGoogle = response.credential || response.id_token;
 
+      const backendResponse = await fetch(`${API_URL}/api/auth/google`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          credential: tokenGoogle,
+          id_token: tokenGoogle,
+        }),
+      });
 
       const data = await backendResponse.json();
 
@@ -53,6 +54,8 @@ export default function Login() {
         } else {
           window.location.href = "/cliente";
         }
+      } else {
+        console.error("Error en Google Login:", data.msg);
       }
     } catch (error) {
       console.error("Error enviando token al backend:", error);
