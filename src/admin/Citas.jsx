@@ -1,5 +1,8 @@
 import { useEffect, useState } from "react";
 
+// 🔥 URL del backend desde .env o .env.production
+const API_URL = import.meta.env.VITE_API_URL;
+
 export default function Citas() {
   const [mascotas, setMascotas] = useState([]);
   const [veterinarios, setVeterinarios] = useState([]);
@@ -17,24 +20,51 @@ export default function Citas() {
   // =============================
   useEffect(() => {
     cargarDatosIniciales();
+    cargarMascotas();
+    cargarVeterinarios();
   }, []);
 
   async function cargarDatosIniciales() {
-  try {
-    const res = await fetch("http://localhost:4000/api/citas", {
-      headers: { Authorization: `Bearer ${localStorage.getItem("token")}` }
-    });
+    try {
+      const res = await fetch(`${API_URL}/api/citas`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
 
-    const data = await res.json();
+      const data = await res.json();
 
-    if (data.ok) {
-      setCitas(data.citas);
+      if (data.ok) {
+        setCitas(data.citas);
+      }
+    } catch (err) {
+      console.error("Error al cargar datos:", err);
     }
-  } catch (err) {
-    console.error("Error al cargar datos:", err);
   }
-}
 
+  async function cargarMascotas() {
+    try {
+      const res = await fetch(`${API_URL}/api/mascotas`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      const data = await res.json();
+      if (data.ok) setMascotas(data.mascotas);
+    } catch (err) {
+      console.error("Error cargando mascotas:", err);
+    }
+  }
+
+  async function cargarVeterinarios() {
+    try {
+      const res = await fetch(`${API_URL}/api/veterinarios`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      const data = await res.json();
+      if (data.ok) setVeterinarios(data.veterinarios);
+    } catch (err) {
+      console.error("Error cargando veterinarios:", err);
+    }
+  }
 
   // =============================
   // Crear cita
@@ -46,7 +76,7 @@ export default function Citas() {
     }
 
     try {
-      const res = await fetch("http://localhost:4000/api/citas", {
+      const res = await fetch(`${API_URL}/api/citas`, {
         method: "POST",
         headers: {
           Authorization: `Bearer ${token}`,
@@ -84,7 +114,7 @@ export default function Citas() {
     if (!confirm("¿Eliminar esta cita?")) return;
 
     try {
-      const res = await fetch(`http://localhost:4000/api/citas/${id}`, {
+      const res = await fetch(`${API_URL}/api/citas/${id}`, {
         method: "DELETE",
         headers: { Authorization: `Bearer ${token}` },
       });
@@ -235,3 +265,4 @@ const styles = {
     background: "white",
   },
 };
+
