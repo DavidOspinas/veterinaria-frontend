@@ -2,6 +2,9 @@ import { useEffect, useState } from "react";
 
 console.log("TOKEN EN MASCOTAS:", localStorage.getItem("token"));
 
+// 🔥 URL del backend desde .env o .env.production
+const API_URL = import.meta.env.VITE_API_URL;
+
 export default function Mascotas() {
   const [mascotas, setMascotas] = useState([]);
   const [usuarios, setUsuarios] = useState([]);
@@ -22,7 +25,7 @@ export default function Mascotas() {
   }, []);
 
   async function cargarMascotas() {
-    const res = await fetch("http://localhost:4000/api/mascotas", {
+    const res = await fetch(`${API_URL}/api/mascotas`, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
@@ -32,7 +35,7 @@ export default function Mascotas() {
   }
 
   async function cargarUsuarios() {
-    const res = await fetch("http://localhost:4000/api/usuarios", {
+    const res = await fetch(`${API_URL}/api/usuarios`, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
@@ -48,7 +51,7 @@ export default function Mascotas() {
   async function crearMascota(e) {
     e.preventDefault();
 
-    const res = await fetch("http://localhost:4000/api/mascotas", {
+    const res = await fetch(`${API_URL}/api/mascotas`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -210,3 +213,4 @@ const styles = {
     background: "white",
   },
 };
+
