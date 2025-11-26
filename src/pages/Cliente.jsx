@@ -1,6 +1,9 @@
 import { useEffect, useState } from "react";
 import { getUser, isLoggedIn } from "../auth";
 
+// 🔥 URL del backend desde .env o .env.production
+const API_URL = import.meta.env.VITE_API_URL;
+
 export default function Cliente() {
   if (!isLoggedIn()) {
     window.location.href = "/login";
@@ -35,7 +38,7 @@ export default function Cliente() {
   }, []);
 
   async function cargarMascotas() {
-    const res = await fetch(`http://localhost:4000/api/cliente/mascotas/${user.id}`, {
+    const res = await fetch(`${API_URL}/api/cliente/mascotas/${user.id}`, {
       headers: { Authorization: `Bearer ${token}` },
     });
 
@@ -44,7 +47,7 @@ export default function Cliente() {
   }
 
   async function cargarCitas() {
-    const res = await fetch(`http://localhost:4000/api/cliente/citas/${user.id}`, {
+    const res = await fetch(`${API_URL}/api/cliente/citas/${user.id}`, {
       headers: { Authorization: `Bearer ${token}` },
     });
 
@@ -53,7 +56,7 @@ export default function Cliente() {
   }
 
   async function cargarVeterinarios() {
-    const res = await fetch("http://localhost:4000/api/public/veterinarios", {
+    const res = await fetch(`${API_URL}/api/public/veterinarios`, {
       headers: { Authorization: `Bearer ${token}` },
     });
 
@@ -67,11 +70,11 @@ export default function Cliente() {
   async function crearMascota() {
     if (!nombreMascota || !especie) return alert("Faltan campos");
 
-    const res = await fetch("http://localhost:4000/api/cliente/mascotas", {
+    const res = await fetch(`${API_URL}/api/cliente/mascotas`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${localStorage.getItem("token")}`,
+        Authorization: `Bearer ${token}`,
       },
       body: JSON.stringify({
         usuario_id: user.id,
@@ -94,33 +97,32 @@ export default function Cliente() {
   // AGENDAR CITA
   // ======================================================
   async function crearCita() {
-  if (!veterinarioId || !fechaCita || !motivo)
-    return alert("Complete todos los campos");
+    if (!veterinarioId || !fechaCita || !motivo)
+      return alert("Complete todos los campos");
 
-  const res = await fetch("http://localhost:4000/api/cliente/citas", {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${token}`,
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      mascota_id: mascotas[0]?.id,
-      veterinario_id: veterinarioId,
-      fecha: fechaCita,
-      motivo,
-    }),
-  });
+    const res = await fetch(`${API_URL}/api/cliente/citas`, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        mascota_id: mascotas[0]?.id,
+        veterinario_id: veterinarioId,
+        fecha: fechaCita,
+        motivo,
+      }),
+    });
 
-  const data = await res.json();
+    const data = await res.json();
 
-  if (data.ok) {
-    alert("Cita creada exitosamente");
-    cargarCitas();
-  } else {
-    alert("Error: " + data.msg);
+    if (data.ok) {
+      alert("Cita creada exitosamente");
+      cargarCitas();
+    } else {
+      alert("Error: " + data.msg);
+    }
   }
-}
-
 
   return (
     <div style={styles.container}>
@@ -154,20 +156,35 @@ export default function Cliente() {
           <div style={styles.card}>
             <h3>Agregar Mascota</h3>
 
-            <input placeholder="Nombre" value={nombreMascota}
-              onChange={e => setNombreMascota(e.target.value)} />
+            <input
+              placeholder="Nombre"
+              value={nombreMascota}
+              onChange={(e) => setNombreMascota(e.target.value)}
+            />
 
-            <input placeholder="Especie" value={especie}
-              onChange={e => setEspecie(e.target.value)} />
+            <input
+              placeholder="Especie"
+              value={especie}
+              onChange={(e) => setEspecie(e.target.value)}
+            />
 
-            <input placeholder="Raza" value={raza}
-              onChange={e => setRaza(e.target.value)} />
+            <input
+              placeholder="Raza"
+              value={raza}
+              onChange={(e) => setRaza(e.target.value)}
+            />
 
-            <input placeholder="Edad en años" value={edad}
-              onChange={e => setEdad(e.target.value)} />
+            <input
+              placeholder="Edad en años"
+              value={edad}
+              onChange={(e) => setEdad(e.target.value)}
+            />
 
-            <input placeholder="Peso (kg)" value={peso}
-              onChange={e => setPeso(e.target.value)} />
+            <input
+              placeholder="Peso (kg)"
+              value={peso}
+              onChange={(e) => setPeso(e.target.value)}
+            />
 
             <button style={styles.btn} onClick={crearMascota}>
               Registrar Mascota
@@ -190,20 +207,29 @@ export default function Cliente() {
           <div style={styles.card}>
             <h3>Agendar Cita</h3>
 
-            <select value={veterinarioId} onChange={e => setVeterinarioId(e.target.value)}>
+            <select
+              value={veterinarioId}
+              onChange={(e) => setVeterinarioId(e.target.value)}
+            >
               <option value="">Seleccione veterinario</option>
-              {veterinarios.map(v => (
-                <option key={v.id} value={v.id}>{v.nombre}</option>
+              {veterinarios.map((v) => (
+                <option key={v.id} value={v.id}>
+                  {v.nombre}
+                </option>
               ))}
             </select>
 
-            <input type="datetime-local"
+            <input
+              type="datetime-local"
               value={fechaCita}
-              onChange={e => setFechaCita(e.target.value)} />
+              onChange={(e) => setFechaCita(e.target.value)}
+            />
 
-            <input placeholder="Motivo"
+            <input
+              placeholder="Motivo"
               value={motivo}
-              onChange={e => setMotivo(e.target.value)} />
+              onChange={(e) => setMotivo(e.target.value)}
+            />
 
             <button style={styles.btn} onClick={crearCita}>
               Crear Cita
@@ -213,7 +239,8 @@ export default function Cliente() {
           <div>
             {citas.map((c) => (
               <div key={c.id} style={styles.item}>
-                <strong>{c.motivo}</strong> – {new Date(c.fecha).toLocaleString()}
+                <strong>{c.motivo}</strong> –{" "}
+                {new Date(c.fecha).toLocaleString()}
               </div>
             ))}
           </div>
@@ -284,3 +311,4 @@ const styles = {
     boxShadow: "0 1px 5px rgba(0,0,0,0.1)",
   },
 };
+
