@@ -8,6 +8,8 @@ export default function Login() {
 
   useEffect(() => {
     console.log("Inicializando Google One Tap...");
+    console.log("CLIENT ENV:", import.meta.env.VITE_GOOGLE_CLIENT_ID);
+
 
     window.google.accounts.id.initialize({
       client_id: import.meta.env.VITE_GOOGLE_CLIENT_ID,
