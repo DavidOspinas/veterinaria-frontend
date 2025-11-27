@@ -11,8 +11,7 @@ export default function Login() {
     console.log("Google One Tap inicializado");
 
     window.google.accounts.id.initialize({
-      client_id:
-        "40472492340-26r07pm3d3j99em872qnjfinss6c35md.apps.googleusercontent.com",
+        client_id: import.meta.env.VITE_GOOGLE_CLIENT_ID,
       callback: handleCredentialResponse,
     });
 
