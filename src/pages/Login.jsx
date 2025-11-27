@@ -1,17 +1,21 @@
 import { useEffect, useState } from "react";
 
-// 🔥 URL del backend
+// 🔥 URL del backend (desde Netlify)
 const API_URL = import.meta.env.VITE_API_URL;
+const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID;
 
 export default function Login() {
   const [emailAdmin, setEmailAdmin] = useState("");
   const [passAdmin, setPassAdmin] = useState("");
 
+  // ======================================================
+  // 🔥 GOOGLE ONE TAP
+  // ======================================================
   useEffect(() => {
-    console.log("Google One Tap inicializado");
+    console.log("Inicializando Google One Tap...");
 
     window.google.accounts.id.initialize({
-        client_id: import.meta.env.VITE_GOOGLE_CLIENT_ID,
+      client_id: GOOGLE_CLIENT_ID,
       callback: handleCredentialResponse,
     });
 
@@ -26,7 +30,7 @@ export default function Login() {
   }, []);
 
   // ======================================================
-  // 🔥 LOGIN GOOGLE (VERSIÓN FINAL)
+  // 🔥 LOGIN GOOGLE
   // ======================================================
   async function handleCredentialResponse(response) {
     try {
@@ -39,12 +43,11 @@ export default function Login() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           credential: tokenGoogle,
-          id_token: tokenGoogle,
         }),
       });
 
       const data = await backendResponse.json();
-      console.log("RESPUESTA BACKEND:", data);
+      console.log("RESPUESTA DEL BACKEND:", data);
 
       if (!data.ok) {
         alert("Fallo el inicio de sesión con Google");
@@ -55,18 +58,14 @@ export default function Login() {
       localStorage.setItem("usuario", JSON.stringify(data.user));
       localStorage.setItem("rol", data.rol);
 
-      if (data.rol === "ADMIN") {
-        window.location.href = "/admin";
-      } else {
-        window.location.href = "/cliente";
-      }
+      window.location.href = data.rol === "ADMIN" ? "/admin" : "/cliente";
     } catch (error) {
       console.error("Error enviando token al backend:", error);
     }
   }
 
   // ======================================================
-  // 🔥 LOGIN ADMIN
+  // 🔥 LOGIN ADMIN MANUAL
   // ======================================================
   async function loginAdmin(e) {
     e.preventDefault();
@@ -92,17 +91,16 @@ export default function Login() {
       localStorage.setItem("usuario", JSON.stringify(data.user));
       localStorage.setItem("rol", data.rol);
 
-      if (data.rol === "ADMIN") {
-        window.location.href = "/admin";
-      } else {
-        window.location.href = "/cliente";
-      }
+      window.location.href = data.rol === "ADMIN" ? "/admin" : "/cliente";
     } catch (err) {
       console.error(err);
       alert("Error en servidor");
     }
   }
 
+  // ============================================
+  // 🔥 UI LOGIN
+  // ============================================
   return (
     <div style={styles.container}>
       <div style={styles.card}>
@@ -116,6 +114,7 @@ export default function Login() {
             onChange={(e) => setEmailAdmin(e.target.value)}
             style={styles.input}
           />
+
           <input
             type="password"
             placeholder="Contraseña"
@@ -123,6 +122,7 @@ export default function Login() {
             onChange={(e) => setPassAdmin(e.target.value)}
             style={styles.input}
           />
+
           <button type="submit" style={styles.button}>
             Entrar como Admin
           </button>
