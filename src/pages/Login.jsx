@@ -38,6 +38,7 @@ export default function Login() {
       });
 
       const data = await backendResponse.json();
+      console.log("RESPUESTA GOOGLE BACK:", data);
 
       if (!data.ok) {
         alert("Fallo el inicio de sesión con Google");
